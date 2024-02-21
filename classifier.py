@@ -3,6 +3,21 @@ from tensorflow.keras import models
 from PIL import Image
 import numpy as np
 
+
+class_names = {
+    0: 'airplane',
+    1: 'automobile',
+    2: 'bird',
+    3: 'cat',
+    4: 'deer',
+    5: 'dog',
+    6: 'frog',
+    7: 'horse',
+    8: 'ship',
+    9: 'truck',
+}
+
+
 model = models.load_model("baseline_mariya.keras")
 def predict_image(model, path_to_img):
     #print(model.summary())
@@ -15,7 +30,10 @@ def predict_image(model, path_to_img):
     data = data / 255 
     print("after", data[0][0])
 
-    probs = model.predict(data) #check if image is compatible with the network
+    probs = model.predict(np.array([data])[:1]) #check if image is compatible with the network
+    print(probs)
+    print(probs.max())
+    print(np.argmax(probs)) #probs returns a class membership probability
 
 content = ""
 
