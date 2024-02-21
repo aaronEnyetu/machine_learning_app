@@ -26,18 +26,25 @@ def predict_image(model, path_to_img):
     img = img.convert("RGB")
     img = img.resize((32,32))
     data = np.asarray(img)  #normalizing the images
-    print("before", data[0][0])
+    #print("before", data[0][0])
     data = data / 255 
-    print("after", data[0][0])
+    #print("after", data[0][0])
 
     probs = model.predict(np.array([data])[:1]) #check if image is compatible with the network
-    print(probs)
-    print(probs.max())
-    print(np.argmax(probs)) #probs returns a class membership probability
+   # print(probs)
+   # print(probs.max())
+   # print(np.argmax(probs)) #probs returns a class membership probability
+    
+    top_prob = probs.max()
+    top_pred = class_names[np.argmax(probs)]
+    return top_prob, top_pred
 
 content = ""
 
 img_path = "placeholder_image.png"
+prob = 0
+pred = ""
+
 
 index = """
 <|text-center|
@@ -46,17 +53,22 @@ index = """
 <|{content}|file_selector|extensions=.png|>
 select an image from your file system
 
+<|{pred}|>
+
 <|{img_path}|image|width=20vw|>
 
-<|label goes here|indicator|value=0|min=0|max=100|width=20vw|>
+<|{prob}|indicator|value={prob}|min=0|max=100|width=20vw|>
 >
 """
 
 def on_change(state, var_name, var_val):
     if var_name == "content":
-        state.img_path = var_val
-        predict_image(model, var_val)
+        
+        top_prob, top_pred = predict_image(model, var_val)
     #print(var_name, var_val)
+        state.prob = round(top_prob * 100)
+        state.pred = "this is a " + top_pred
+        state.img_path = var_val
 
 app = Gui(page=index)
 
